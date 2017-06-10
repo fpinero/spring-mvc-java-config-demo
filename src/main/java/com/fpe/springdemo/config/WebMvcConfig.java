@@ -1,8 +1,11 @@
 package com.fpe.springdemo.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.JstlView;
@@ -12,6 +15,14 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 @ComponentScan("com.fpe.springdemo")
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
+	
+	@Bean
+	public DataSource dataSource(){
+		final JndiDataSourceLookup dsLookup = new JndiDataSourceLookup();
+		dsLookup.setResourceRef(true);  //nos permite referenciar el nombre corto del DataSource (name en context.xml) en caso contrario, habría q referenciar el datasource de este modo "java:comp/env/jdbc/springdb"
+		DataSource dataSource = dsLookup.getDataSource("jdbc/springdb");
+		return dataSource;
+	}
 	
 	@Bean
 	public UrlBasedViewResolver urlBasedViewResolver() {
