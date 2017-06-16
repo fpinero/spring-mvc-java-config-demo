@@ -2,19 +2,38 @@ package com.fpe.springdemo.config;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
+
+import com.fpe.springdemo.interceptors.ExecutionTimeInterceptor;
+import com.fpe.springdemo.interceptors.HeaderInterceptor;
 
 @Configuration
 @ComponentScan("com.fpe.springdemo")
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
+	
+//	@Bean
+//	public RequestMappingHandlerMapping requestMappingHandlerMapping(){
+//		RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
+//		rmhm.setUseSuffixPatternMatch(true); //si lo pones a true, no importa la extensión,
+//		rmhm.setUseTrailingSlashMatch(true); //es ignorada y la pagina carga si el nombre existe 
+//		return rmhm;						  //ya sea .jsp , jsf , html , etc
+//	}
+	
+	@Autowired
+	private HeaderInterceptor headerInterceptor;
+	@Autowired
+	private ExecutionTimeInterceptor executionTimeInterceptor;
 	
 	@Bean
 	public DataSource dataSource(){
@@ -33,4 +52,15 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 		return resolver;
 	}
 
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(headerInterceptor);
+		registry.addInterceptor(executionTimeInterceptor).addPathPatterns("/location");
+	}
+
+	@Override
+	public void addViewControllers(ViewControllerRegistry registry) {
+		registry.addViewController("/").setViewName("testMvcHome");  //redirecciona 
+	}
+	
 }
